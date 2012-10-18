@@ -234,7 +234,7 @@ class User(models.Model):
                     '@/./+/-/_ characters'))
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
-    email = models.EmailField(_('e-mail address'), blank=True)
+    email = models.EmailField(_('e-mail address'), blank=True, max_length=128)
     password = models.CharField(_('password'), max_length=128)
     is_staff = models.BooleanField(_('staff status'), default=False,
         help_text=_('Designates whether the user can log into this admin '
