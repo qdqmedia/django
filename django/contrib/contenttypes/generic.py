@@ -329,8 +329,10 @@ def create_generic_related_manager(superclass):
                     set(obj._get_pk_val() for obj in instances)
                 }
             qs = super(GenericRelatedObjectManager, self).get_query_set().using(db).filter(**query)
+            # see https://code.djangoproject.com/ticket/17991
+            object_id_converter = instances[0]._meta.pk.to_python
             return (qs,
-                    attrgetter(self.object_id_field_name),
+                    lambda relobj: object_id_converter(getattr(relobj, self.object_id_field_name)),
                     lambda obj: obj._get_pk_val(),
                     False,
                     self.prefetch_cache_name)
