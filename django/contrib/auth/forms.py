@@ -216,7 +216,7 @@ class PasswordResetForm(forms.Form):
         'unusable': _("The user account associated with this email "
                       "address cannot reset the password."),
     }
-    email = forms.EmailField(label=_("Email"), max_length=254)
+    email = forms.EmailField(label=_("Email"), max_length=128)
 
     def clean_email(self):
         """
