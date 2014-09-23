@@ -17,7 +17,7 @@ Having trouble? We'd like to help!
 * Looking for specific information? Try the :ref:`genindex`, :ref:`modindex` or
   the :doc:`detailed table of contents <contents>`.
 
-* Search for information in the `archives of the django-users mailing list`_, or
+* Search for information in the archives of the |django-users| mailing list, or
   `post a question`_.
 
 * Ask a question in the `#django IRC channel`_, or search the `IRC logs`_ to see
@@ -25,8 +25,8 @@ Having trouble? We'd like to help!
 
 * Report bugs with Django in our `ticket tracker`_.
 
-.. _archives of the django-users mailing list: http://groups.google.com/group/django-users/
-.. _post a question: http://groups.google.com/group/django-users/
+.. _archives: http://groups.google.com/group/django-users/
+.. _post a question: https://groups.google.com/d/forum/django-users
 .. _#django IRC channel: irc://irc.freenode.net/django
 .. _IRC logs: http://django-irc-logs.com/
 .. _ticket tracker: https://code.djangoproject.com/
@@ -44,7 +44,13 @@ Are you new to Django or to programming? This is the place to start!
   :doc:`Part 1 <intro/tutorial01>` |
   :doc:`Part 2 <intro/tutorial02>` |
   :doc:`Part 3 <intro/tutorial03>` |
-  :doc:`Part 4 <intro/tutorial04>`
+  :doc:`Part 4 <intro/tutorial04>` |
+  :doc:`Part 5 <intro/tutorial05>` |
+  :doc:`Part 6 <intro/tutorial06>`
+
+* **Advanced Tutorials:**
+  :doc:`How to write reusable apps <intro/reusable-apps>` |
+  :doc:`Writing your first patch for Django <intro/contributing>`
 
 The model layer
 ===============
@@ -55,15 +61,23 @@ manipulating the data of your Web application. Learn more about it below:
 * **Models:**
   :doc:`Model syntax <topics/db/models>` |
   :doc:`Field types <ref/models/fields>` |
-  :doc:`Meta options <ref/models/options>`
+  :doc:`Meta options <ref/models/options>` |
+  :doc:`Model class <ref/models/class>`
 
 * **QuerySets:**
   :doc:`Executing queries <topics/db/queries>` |
-  :doc:`QuerySet method reference <ref/models/querysets>`
+  :doc:`QuerySet method reference <ref/models/querysets>` |
+  :doc:`Query-related classes <ref/models/queries>` |
+  :doc:`Lookup expressions <ref/models/lookups>`
 
 * **Model instances:**
   :doc:`Instance methods <ref/models/instances>` |
   :doc:`Accessing related objects <ref/models/relations>`
+
+* **Migrations:**
+  :doc:`Introduction to Migrations<topics/migrations>` |
+  :doc:`Operations reference <ref/migration-operations>` |
+  :doc:`SchemaEditor <ref/schema-editor>`
 
 * **Advanced:**
   :doc:`Managers <topics/db/managers>` |
@@ -71,13 +85,15 @@ manipulating the data of your Web application. Learn more about it below:
   :doc:`Transactions <topics/db/transactions>` |
   :doc:`Aggregation <topics/db/aggregation>` |
   :doc:`Custom fields <howto/custom-model-fields>` |
-  :doc:`Multiple databases <topics/db/multi-db>`
+  :doc:`Multiple databases <topics/db/multi-db>` |
+  :doc:`Custom lookups <howto/custom-lookups>`
 
 * **Other:**
   :doc:`Supported databases <ref/databases>` |
   :doc:`Legacy databases <howto/legacy-databases>` |
   :doc:`Providing initial data <howto/initial-data>` |
-  :doc:`Optimize database access <topics/db/optimization>`
+  :doc:`Optimize database access <topics/db/optimization>` |
+  :doc:`PostgreSQL specific features <ref/contrib/postgres/index>`
 
 The view layer
 ==============
@@ -93,6 +109,7 @@ to know about views via the links below:
   :doc:`Decorators <topics/http/decorators>`
 
 * **Reference:**
+  :doc:`Built-in Views <ref/views>` |
   :doc:`Request/response objects <ref/request-response>` |
   :doc:`TemplateResponse objects <ref/template-response>`
 
@@ -168,20 +185,27 @@ testing of Django applications:
   :doc:`Overview <topics/settings>` |
   :doc:`Full list of settings <ref/settings>`
 
+* **Applications:**
+  :doc:`Overview <ref/applications>`
+
 * **Exceptions:**
   :doc:`Overview <ref/exceptions>`
 
-* **django-admin.py and manage.py:**
+* **django-admin and manage.py:**
   :doc:`Overview <ref/django-admin>` |
   :doc:`Adding custom commands <howto/custom-management-commands>`
 
-* **Testing:**  :doc:`Overview <topics/testing>`
+* **Testing:**
+  :doc:`Introduction <topics/testing/index>` |
+  :doc:`Writing and running tests <topics/testing/overview>` |
+  :doc:`Included testing tools <topics/testing/tools>` |
+  :doc:`Advanced topics <topics/testing/advanced>`
 
 * **Deployment:**
   :doc:`Overview <howto/deployment/index>` |
   :doc:`WSGI servers <howto/deployment/wsgi/index>` |
-  :doc:`FastCGI/SCGI/AJP <howto/deployment/fastcgi>` |
-  :doc:`Handling static files <howto/static-files>` |
+  :doc:`FastCGI/SCGI/AJP <howto/deployment/fastcgi>` (deprecated) |
+  :doc:`Deploying static files <howto/static-files/deployment>` |
   :doc:`Tracking code errors by email <howto/error-reporting>`
 
 The admin
@@ -201,9 +225,11 @@ Security is a topic of paramount importance in the development of Web
 applications and Django provides multiple protection tools and mechanisms:
 
 * :doc:`Security overview <topics/security>`
+* :doc:`Disclosed security issues in Django <releases/security>`
 * :doc:`Clickjacking protection <ref/clickjacking>`
 * :doc:`Cross Site Request Forgery protection <ref/contrib/csrf>`
 * :doc:`Cryptographic signing <topics/signing>`
+* :ref:`Security Middleware <security-middleware>`
 
 Internationalization and localization
 =====================================
@@ -212,8 +238,20 @@ Django offers a robust internationalization and localization framework to
 assist you in the development of applications for multiple languages and world
 regions:
 
-* :doc:`Internationalization <topics/i18n/index>`
-* :doc:`"Local flavor" <ref/contrib/localflavor>`
+* :doc:`Overview <topics/i18n/index>` |
+  :doc:`Internationalization <topics/i18n/translation>` |
+  :ref:`Localization <how-to-create-language-files>` |
+  :doc:`Localized Web UI formatting and form input <topics/i18n/formatting>`
+* :doc:`"Local flavor" <topics/localflavor>`
+* :doc:`Time zones </topics/i18n/timezones>`
+
+Performance and optimization
+============================
+
+There are a variety of techniques and tools that can help get your code running
+more efficiently - faster, and using fewer system resources.
+
+* :doc:`Performance and optimization overview <topics/performance>`
 
 Python compatibility
 ====================
@@ -237,12 +275,11 @@ Common Web application tools
 Django offers multiple tools commonly needed in the development of Web
 applications:
 
-* :doc:`Authentication <topics/auth>`
+* :doc:`Authentication <topics/auth/index>`
 * :doc:`Caching <topics/cache>`
 * :doc:`Logging <topics/logging>`
 * :doc:`Sending emails <topics/email>`
 * :doc:`Syndication feeds (RSS/Atom) <ref/contrib/syndication>`
-* :doc:`Comments <ref/contrib/comments/index>`, :doc:`comment moderation <ref/contrib/comments/moderation>` and :doc:`custom comments <ref/contrib/comments/custom>`
 * :doc:`Pagination <topics/pagination>`
 * :doc:`Messages framework <ref/contrib/messages>`
 * :doc:`Serialization <topics/serialization>`
@@ -258,10 +295,10 @@ Learn about some other core functionalities of the Django framework:
 
 * :doc:`Conditional content processing <topics/conditional-view-processing>`
 * :doc:`Content types and generic relations <ref/contrib/contenttypes>`
-* :doc:`Databrowse <ref/contrib/databrowse>`
 * :doc:`Flatpages <ref/contrib/flatpages>`
 * :doc:`Redirects <ref/contrib/redirects>`
 * :doc:`Signals <topics/signals>`
+* :doc:`System check framework <topics/checks>`
 * :doc:`The sites framework <ref/contrib/sites>`
 * :doc:`Unicode in Django <ref/unicode>`
 
@@ -274,9 +311,12 @@ you can contribute:
 * **Community:**
   :doc:`How to get involved <internals/contributing/index>` |
   :doc:`The release process <internals/release-process>` |
-  :doc:`Team of committers <internals/committers>` |
+  :doc:`Team organization <internals/organization>` |
+  :doc:`Meet the team <internals/team>` |
+  :doc:`Current roles <internals/roles>` |
   :doc:`The Django source code repository <internals/git>` |
-  :doc:`Security policies <internals/security>`
+  :doc:`Security policies <internals/security>` |
+  :doc:`Mailing lists <internals/mailing-lists>`
 
 * **Design philosophies:**
   :doc:`Overview <misc/design-philosophies>`

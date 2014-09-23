@@ -2,12 +2,17 @@ from __future__ import unicode_literals
 
 import binascii
 import unittest
+from unittest import skipUnless
 
-from django.contrib.gis import memoryview
-from django.contrib.gis.geos import GEOSGeometry, WKTReader, WKTWriter, WKBReader, WKBWriter, geos_version_info
-from django.utils import six
+from django.utils.six import memoryview
+
+from ..import HAS_GEOS
+
+if HAS_GEOS:
+    from .. import GEOSGeometry, WKTReader, WKTWriter, WKBReader, WKBWriter
 
 
+@skipUnless(HAS_GEOS, "Geos is required.")
 class GEOSIOTest(unittest.TestCase):
 
     def test01_wktreader(self):
@@ -96,24 +101,13 @@ class GEOSIOTest(unittest.TestCase):
             # Equivalent of `wkb_w.outdim = bad_outdim`
             self.assertRaises(ValueError, wkb_w._set_outdim, bad_outdim)
 
-        # These tests will fail on 3.0.0 because of a bug that was fixed in 3.1:
-        # http://trac.osgeo.org/geos/ticket/216
-        if not geos_version_info()['version'].startswith('3.0.'):
-            # Now setting the output dimensions to be 3
-            wkb_w.outdim = 3
+        # Now setting the output dimensions to be 3
+        wkb_w.outdim = 3
 
-            self.assertEqual(hex3d, wkb_w.write_hex(g))
-            self.assertEqual(wkb3d, wkb_w.write(g))
+        self.assertEqual(hex3d, wkb_w.write_hex(g))
+        self.assertEqual(wkb3d, wkb_w.write(g))
 
-            # Telling the WKBWriter to include the srid in the representation.
-            wkb_w.srid = True
-            self.assertEqual(hex3d_srid, wkb_w.write_hex(g))
-            self.assertEqual(wkb3d_srid, wkb_w.write(g))
-
-def suite():
-    s = unittest.TestSuite()
-    s.addTest(unittest.makeSuite(GEOSIOTest))
-    return s
-
-def run(verbosity=2):
-    unittest.TextTestRunner(verbosity=verbosity).run(suite())
+        # Telling the WKBWriter to include the srid in the representation.
+        wkb_w.srid = True
+        self.assertEqual(hex3d_srid, wkb_w.write_hex(g))
+        self.assertEqual(wkb3d_srid, wkb_w.write(g))

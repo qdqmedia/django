@@ -10,7 +10,7 @@ There are two components here, separated by a ':'. The first component is a
 URLsafe base64 encoded JSON of the object passed to dumps(). The second
 component is a base64 encoded hmac/SHA1 hash of "$first_component:$secret"
 
-signing.loads(s) checks the signature and returns the deserialised object.
+signing.loads(s) checks the signature and returns the deserialized object.
 If the signature fails, a BadSignature exception is raised.
 
 >>> signing.loads("ImhlbGxvIg:1QaUZC:YIye-ze3TTx7gtSv422nZA4sgmk")
@@ -41,11 +41,10 @@ import time
 import zlib
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.utils import baseconv
 from django.utils.crypto import constant_time_compare, salted_hmac
 from django.utils.encoding import force_bytes, force_str, force_text
-from django.utils.importlib import import_module
+from django.utils.module_loading import import_string
 
 
 class BadSignature(Exception):
@@ -76,19 +75,9 @@ def base64_hmac(salt, value, key):
 
 
 def get_cookie_signer(salt='django.core.signing.get_cookie_signer'):
-    modpath = settings.SIGNING_BACKEND
-    module, attr = modpath.rsplit('.', 1)
-    try:
-        mod = import_module(module)
-    except ImportError as e:
-        raise ImproperlyConfigured(
-            'Error importing cookie signer %s: "%s"' % (modpath, e))
-    try:
-        Signer = getattr(mod, attr)
-    except AttributeError as e:
-        raise ImproperlyConfigured(
-            'Error importing cookie signer %s: "%s"' % (modpath, e))
-    return Signer('django.http.cookies' + settings.SECRET_KEY, salt=salt)
+    Signer = import_string(settings.SIGNING_BACKEND)
+    key = force_bytes(settings.SECRET_KEY)
+    return Signer(b'django.http.cookies' + key, salt=salt)
 
 
 class JSONSerializer(object):
@@ -97,10 +86,10 @@ class JSONSerializer(object):
     signing.loads.
     """
     def dumps(self, obj):
-        return json.dumps(obj, separators=(',', ':'))
+        return json.dumps(obj, separators=(',', ':')).encode('latin-1')
 
     def loads(self, data):
-        return json.loads(data)
+        return json.loads(data.decode('latin-1'))
 
 
 def dumps(obj, key=None, salt='django.core.signing', serializer=JSONSerializer, compress=False):
@@ -116,8 +105,10 @@ def dumps(obj, key=None, salt='django.core.signing', serializer=JSONSerializer, 
     only valid for a given namespace. Leaving this at the default
     value or re-using a salt value across different parts of your
     application without good cause is a security risk.
+
+    The serializer is expected to return a bytestring.
     """
-    data = force_bytes(serializer().dumps(obj))
+    data = serializer().dumps(obj)
 
     # Flag for if it's been compressed or not
     is_compressed = False
@@ -136,29 +127,31 @@ def dumps(obj, key=None, salt='django.core.signing', serializer=JSONSerializer, 
 
 def loads(s, key=None, salt='django.core.signing', serializer=JSONSerializer, max_age=None):
     """
-    Reverse of dumps(), raises BadSignature if signature fails
+    Reverse of dumps(), raises BadSignature if signature fails.
+
+    The serializer is expected to accept a bytestring.
     """
     # TimestampSigner.unsign always returns unicode but base64 and zlib
     # compression operate on bytes.
     base64d = force_bytes(TimestampSigner(key, salt=salt).unsign(s, max_age=max_age))
     decompress = False
-    if base64d[0] == b'.':
+    if base64d[:1] == b'.':
         # It's compressed; uncompress it first
         base64d = base64d[1:]
         decompress = True
     data = b64_decode(base64d)
     if decompress:
         data = zlib.decompress(data)
-    return serializer().loads(force_str(data))
+    return serializer().loads(data)
 
 
 class Signer(object):
 
     def __init__(self, key=None, sep=':', salt=None):
         # Use of native strings in all versions of Python
-        self.sep = str(sep)
-        self.key = str(key or settings.SECRET_KEY)
-        self.salt = str(salt or
+        self.sep = force_str(sep)
+        self.key = key or settings.SECRET_KEY
+        self.salt = force_str(salt or
             '%s.%s' % (self.__class__.__module__, self.__class__.__name__))
 
     def signature(self, value):
@@ -172,7 +165,7 @@ class Signer(object):
 
     def unsign(self, signed_value):
         signed_value = force_str(signed_value)
-        if not self.sep in signed_value:
+        if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)
         if constant_time_compare(sig, self.signature(value)):
@@ -191,7 +184,11 @@ class TimestampSigner(Signer):
         return super(TimestampSigner, self).sign(value)
 
     def unsign(self, value, max_age=None):
-        result =  super(TimestampSigner, self).unsign(value)
+        """
+        Retrieve original value and check it wasn't signed more
+        than max_age seconds ago.
+        """
+        result = super(TimestampSigner, self).unsign(value)
         value, timestamp = result.rsplit(self.sep, 1)
         timestamp = baseconv.base62.decode(timestamp)
         if max_age is not None:

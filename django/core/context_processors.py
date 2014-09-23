@@ -31,16 +31,22 @@ def csrf(request):
             return smart_text(token)
     _get_val = lazy(_get_val, six.text_type)
 
-    return {'csrf_token': _get_val() }
+    return {'csrf_token': _get_val()}
+
 
 def debug(request):
-    "Returns context variables helpful for debugging."
+    """
+    Returns context variables helpful for debugging.
+    """
     context_extras = {}
     if settings.DEBUG and request.META.get('REMOTE_ADDR') in settings.INTERNAL_IPS:
         context_extras['debug'] = True
         from django.db import connection
-        context_extras['sql_queries'] = connection.queries
+        # Return a lazy reference that computes connection.queries on access,
+        # to ensure it contains queries triggered after this function runs.
+        context_extras['sql_queries'] = lazy(lambda: connection.queries, list)
     return context_extras
+
 
 def i18n(request):
     from django.utils import translation
@@ -52,10 +58,12 @@ def i18n(request):
 
     return context_extras
 
+
 def tz(request):
     from django.utils import timezone
 
     return {'TIME_ZONE': timezone.get_current_timezone_name()}
+
 
 def static(request):
     """
@@ -64,12 +72,14 @@ def static(request):
     """
     return {'STATIC_URL': settings.STATIC_URL}
 
+
 def media(request):
     """
     Adds media-related context variables to the context.
 
     """
     return {'MEDIA_URL': settings.MEDIA_URL}
+
 
 def request(request):
     return {'request': request}

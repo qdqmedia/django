@@ -7,13 +7,11 @@ This document will get you up and running with Django.
 Install Python
 ==============
 
-Being a Python Web framework, Django requires Python.
+Being a Python Web framework, Django requires Python. It works with Python 2.7,
+3.2 or 3.3.
 
-It works with any Python version from 2.6.5 to 2.7. It also features
-experimental support for versions 3.2 and 3.3.
-
-Get Python at http://www.python.org. If you're running Linux or Mac OS X, you
-probably already have it installed.
+Get the latest version of Python at http://www.python.org/download/ or with
+your operating system's package manager.
 
 .. admonition:: Django on Jython
 
@@ -24,12 +22,8 @@ probably already have it installed.
 
 .. admonition:: Python on Windows
 
-    On Windows, you might need to adjust your ``PATH`` environment variable
-    to include paths to Python executable and additional scripts. For example,
-    if your Python is installed in ``C:\Python27\``, the following paths need
-    to be added to ``PATH``::
-
-        C:\Python27\;C:\Python27\Scripts;
+    If you are just starting with Django and using Windows, you may find
+    :doc:`/howto/windows` useful.
 
 Install Apache and mod_wsgi
 =============================
@@ -61,16 +55,12 @@ installed.
 
 If you can't use mod_wsgi for some reason, fear not: Django supports many other
 deployment options. One is :doc:`uWSGI </howto/deployment/wsgi/uwsgi>`; it works
-very well with `nginx`_. Another is :doc:`FastCGI </howto/deployment/fastcgi>`,
-perfect for using Django with servers other than Apache. Additionally, Django
-follows the WSGI spec (:pep:`3333`), which allows it to run on a variety of
-server platforms. See the `server-arrangements wiki page`_ for specific
-installation instructions for each platform.
+very well with `nginx`_. Additionally, Django follows the WSGI spec
+(:pep:`3333`), which allows it to run on a variety of server platforms.
 
 .. _Apache: http://httpd.apache.org/
 .. _nginx: http://nginx.org/
 .. _mod_wsgi: http://code.google.com/p/modwsgi/
-.. _server-arrangements wiki page: https://code.djangoproject.com/wiki/ServerArrangements
 
 .. _database-installation:
 
@@ -89,32 +79,25 @@ from other databases, so if you are working on something substantial, it's
 recommended to develop with the same database as you plan on using in
 production.
 
-In addition to the officially supported databases, there are backends provided
-by 3rd parties that allow you to use other databases with Django:
-
-* `Sybase SQL Anywhere`_
-* `IBM DB2`_
-* `Microsoft SQL Server 2005`_
-* Firebird_
-* ODBC_
-
-The Django versions and ORM features supported by these unofficial backends
-vary considerably. Queries regarding the specific capabilities of these
-unofficial backends, along with any support queries, should be directed to the
-support channels provided by each 3rd party project.
+In addition to the officially supported databases, there are :ref:`backends
+provided by 3rd parties <third-party-notes>` that allow you to use other
+databases with Django.
 
 In addition to a database backend, you'll need to make sure your Python
 database bindings are installed.
 
-* If you're using PostgreSQL, you'll need the ``postgresql_psycopg2`` package.
+* If you're using PostgreSQL, you'll need the `postgresql_psycopg2`_ package.
   You might want to refer to our :ref:`PostgreSQL notes <postgresql-notes>` for
   further technical details specific to this database.
 
   If you're on Windows, check out the unofficial `compiled Windows version`_.
 
-* If you're using MySQL, you'll need the ``MySQL-python`` package, version 1.2.1p2 or higher. You
-  will also want to read the database-specific :ref:`notes for the MySQL
-  backend <mysql-notes>`.
+* If you're using MySQL, you'll need the ``MySQL-python`` package, version
+  1.2.1p2 or higher. You will also want to read the database-specific
+  :ref:`notes for the MySQL backend <mysql-notes>`.
+
+* If you're using SQLite you might want to read the :ref:`SQLite backend notes
+  <sqlite-notes>`.
 
 * If you're using Oracle, you'll need a copy of cx_Oracle_, but please
   read the database-specific :ref:`notes for the Oracle backend <oracle-notes>`
@@ -124,21 +107,21 @@ database bindings are installed.
 * If you're using an unofficial 3rd party backend, please consult the
   documentation provided for any additional requirements.
 
-If you plan to use Django's ``manage.py syncdb`` command to
-automatically create database tables for your models, you'll need to
-ensure that Django has permission to create and alter tables in the
-database you're using; if you plan to manually create the tables, you
-can simply grant Django ``SELECT``, ``INSERT``, ``UPDATE`` and
-``DELETE`` permissions. On some databases, Django will need
-``ALTER TABLE`` privileges during ``syncdb`` but won't issue
-``ALTER TABLE`` statements on a table once ``syncdb`` has created it.
+If you plan to use Django's ``manage.py migrate`` command to automatically
+create database tables for your models (after first installing Django and
+creating a project), you'll need to ensure that Django has permission to create
+and alter tables in the database you're using; if you plan to manually create
+the tables, you can simply grant Django ``SELECT``, ``INSERT``, ``UPDATE`` and
+``DELETE`` permissions. After creating a database user with these
+permissions, you'll specify the details in your project's settings file,
+see :setting:`DATABASES` for details.
 
-If you're using Django's :doc:`testing framework</topics/testing>` to test database queries,
-Django will need permission to create a test database.
+If you're using Django's :doc:`testing framework</topics/testing/index>` to test
+database queries, Django will need permission to create a test database.
 
 .. _PostgreSQL: http://www.postgresql.org/
 .. _MySQL: http://www.mysql.com/
-.. _psycopg: http://initd.org/pub/software/psycopg/
+.. _postgresql_psycopg2: http://initd.org/psycopg/
 .. _compiled Windows version: http://stickpeople.com/projects/python/win-psycopg/
 .. _SQLite: http://www.sqlite.org/
 .. _pysqlite: http://trac.edgewall.org/wiki/PySqlite
@@ -146,7 +129,7 @@ Django will need permission to create a test database.
 .. _Oracle: http://www.oracle.com/
 .. _Sybase SQL Anywhere: http://code.google.com/p/sqlany-django/
 .. _IBM DB2: http://code.google.com/p/ibm-db/
-.. _Microsoft SQL Server 2005: http://code.google.com/p/django-mssql/
+.. _Microsoft SQL Server 2005: https://bitbucket.org/Manfre/django-mssql/
 .. _Firebird: http://code.google.com/p/django-firebird/
 .. _ODBC: http://code.google.com/p/django-pyodbc/
 .. _removing-old-versions-of-django:
@@ -221,8 +204,8 @@ This is the recommended way to install Django.
 
 .. _pip: http://www.pip-installer.org/
 .. _virtualenv: http://www.virtualenv.org/
-.. _virtualenvwrapper: http://www.doughellmann.com/docs/virtualenvwrapper/
-.. _standalone pip installer: http://www.pip-installer.org/en/latest/installing.html#using-the-installer
+.. _virtualenvwrapper: http://virtualenvwrapper.readthedocs.org/en/latest/
+.. _standalone pip installer: http://www.pip-installer.org/en/latest/installing.html#install-pip
 
 Installing an official release manually
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,7 +281,7 @@ latest bug fixes and improvements, follow these instructions:
    (If using a virtualenv_ you can omit ``sudo``.)
 
    This will make Django's code importable, and will also make the
-   ``django-admin.py`` utility command available. In other words, you're all
+   ``django-admin`` utility command available. In other words, you're all
    set!
 
    If you don't have pip_ available, see the alternative instructions for
@@ -357,7 +340,7 @@ Next you need to make the ``django-admin.py`` utility available in your
 shell PATH.
 
 On Unix-like systems, create a symbolic link to the file
-``django-trunk/django/bin/django-admin.py`` in a directory on your system
+``django-trunk/django/bin/django-admin`` in a directory on your system
 path, such as ``/usr/local/bin``. For example:
 
 .. code-block:: bash
@@ -373,3 +356,7 @@ rather than having to qualify the command with the full path to the file.
 On Windows systems, the same result can be achieved by copying the file
 ``django-trunk/django/bin/django-admin.py`` to somewhere on your system
 path, for example ``C:\Python27\Scripts``.
+
+Note that the rest of the documentation assumes this utility is installed
+as ``django-admin``. You'll have to substitute ``django-admin.py`` if you use
+this method.

@@ -6,11 +6,12 @@ from io import BytesIO, StringIO, UnsupportedOperation
 from django.utils.encoding import smart_text
 from django.core.files.utils import FileProxyMixin
 from django.utils import six
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils.encoding import force_bytes, python_2_unicode_compatible
+
 
 @python_2_unicode_compatible
 class File(FileProxyMixin):
-    DEFAULT_CHUNK_SIZE = 64 * 2**10
+    DEFAULT_CHUNK_SIZE = 64 * 2 ** 10
 
     def __init__(self, file, name=None):
         self.file = file
@@ -28,24 +29,33 @@ class File(FileProxyMixin):
 
     def __bool__(self):
         return bool(self.name)
-    __nonzero__ = __bool__ # Python 2
+
+    def __nonzero__(self):      # Python 2 compatibility
+        return type(self).__bool__(self)
 
     def __len__(self):
         return self.size
 
+    def _get_size_from_underlying_file(self):
+        if hasattr(self.file, 'size'):
+            return self.file.size
+        if hasattr(self.file, 'name'):
+            try:
+                return os.path.getsize(self.file.name)
+            except (OSError, TypeError):
+                pass
+        if hasattr(self.file, 'tell') and hasattr(self.file, 'seek'):
+            pos = self.file.tell()
+            self.file.seek(0, os.SEEK_END)
+            size = self.file.tell()
+            self.file.seek(pos)
+            return size
+        raise AttributeError("Unable to determine the file's size.")
+
     def _get_size(self):
-        if not hasattr(self, '_size'):
-            if hasattr(self.file, 'size'):
-                self._size = self.file.size
-            elif hasattr(self.file, 'name') and os.path.exists(self.file.name):
-                self._size = os.path.getsize(self.file.name)
-            elif hasattr(self.file, 'tell') and hasattr(self.file, 'seek'):
-                pos = self.file.tell()
-                self.file.seek(0, os.SEEK_END)
-                self._size = self.file.tell()
-                self.file.seek(pos)
-            else:
-                raise AttributeError("Unable to determine the file's size.")
+        if hasattr(self, '_size'):
+            return self._size
+        self._size = self._get_size_from_underlying_file()
         return self._size
 
     def _set_size(self, size):
@@ -101,7 +111,7 @@ class File(FileProxyMixin):
 
                 # If this is the end of a line, yield
                 # otherwise, wait for the next round
-                if line[-1] in ('\n', '\r'):
+                if line[-1:] in (b'\n', b'\r'):
                     yield line
                 else:
                     buffer_ = line
@@ -126,14 +136,18 @@ class File(FileProxyMixin):
     def close(self):
         self.file.close()
 
+
 @python_2_unicode_compatible
 class ContentFile(File):
     """
     A File-like object that takes just raw content, rather than an actual file.
     """
     def __init__(self, content, name=None):
-        content = content or b''
-        stream_class = StringIO if isinstance(content, six.text_type) else BytesIO
+        if six.PY3:
+            stream_class = StringIO if isinstance(content, six.text_type) else BytesIO
+        else:
+            stream_class = BytesIO
+            content = force_bytes(content)
         super(ContentFile, self).__init__(stream_class(content), name=name)
         self.size = len(content)
 
@@ -142,7 +156,9 @@ class ContentFile(File):
 
     def __bool__(self):
         return True
-    __nonzero__ = __bool__ # Python 2
+
+    def __nonzero__(self):      # Python 2 compatibility
+        return type(self).__bool__(self)
 
     def open(self, mode=None):
         self.seek(0)
